@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: user-service
+
+  cloud:
+    consul:
+      discovery:
+        tags: version=${info.version},author=${info.author}
+      host: 192.168.2.54
+      port: 8500
