@@ -48,7 +48,7 @@ public class ServiceController {
      */
     @GetMapping("/services")
     public Object services() {
-        return discoveryClient.getInstances("service-producer");
+        return discoveryClient.getInstances("user-service");
     }
 
     /**
@@ -56,7 +56,7 @@ public class ServiceController {
      */
     @GetMapping("/discover")
     public Object discover() {
-        return loadBalancer.choose("service-producer").getUri().toString();
+        return loadBalancer.choose("user-service").getUri().toString();
     }
 
     @GetMapping("/call")

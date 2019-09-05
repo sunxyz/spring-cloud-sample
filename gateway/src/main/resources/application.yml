@@ -1,0 +1,43 @@
+info:
+  serviceName: @project.artifactId@
+  version: @project.version@
+  description: @project.description@
+  businessSide: 研发部
+  jdk-version: @java.version@
+  spring-boot.version: @spring-boot.version@
+  spring-cloud.version: @spring-cloud.version@
+  author: yangrd
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings,env,health
+
+
+logging:
+  level:
+    org.springframework: DEBUG
+
+
+spring:
+  profiles:
+    active: dev
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+          filters:
+            - StripPrefix=1
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/orders/**
+          filters:
+            - StripPrefix=1
+server:
+  port: 8086

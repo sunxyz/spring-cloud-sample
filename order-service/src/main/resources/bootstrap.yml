@@ -5,7 +5,7 @@ spring:
   cloud:
     consul:
       discovery:
-        tags: version=${info.version},author=${info.author}
+        tags: version=${info.version},author=${info.author},active=${spring.profiles.active}
       host: 192.168.2.54
       port: 8500
       config:
