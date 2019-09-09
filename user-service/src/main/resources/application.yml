@@ -13,11 +13,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: mappings,env,health,metrics,prometheus
+        include: "*"
 
 logging:
   level:
     org.springframework: DEBUG
+  file: /tmp/${spring.application.name}.log
 
 server:
   port: 9080
