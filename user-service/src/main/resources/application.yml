@@ -1,5 +1,5 @@
 info:
-  serviceName: @project.artifactId@
+#  serviceName: @project.artifactId@
   version: @project.version@
   description: @project.description@
   businessSide: 研发部
@@ -8,12 +8,12 @@ info:
   spring-cloud.version: @spring-cloud.version@
   author: yangrd
 
+
 management:
   endpoints:
     web:
       exposure:
-        include: mappings,env,health
-
+        include: mappings,env,health,metrics,prometheus
 
 logging:
   level:
@@ -21,6 +21,9 @@ logging:
 
 server:
   port: 9080
+feign:
+  hystrix:
+    enabled: true
 spring:
   profiles:
     active: dev

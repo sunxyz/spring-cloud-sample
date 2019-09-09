@@ -39,5 +39,10 @@ spring:
             - Path=/orders/**
           filters:
             - StripPrefix=1
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8087/.well-known/jwks.json
 server:
   port: 8086

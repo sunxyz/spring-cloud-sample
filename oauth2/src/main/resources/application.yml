@@ -29,3 +29,14 @@ feign:
 spring:
   profiles:
     active: dev
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:${server.port}/.well-known/jwks.json
+
+security:
+  oauth2:
+    client:
+      client-id: first-client
+      client-secret: noonewilleverguess
