@@ -1,0 +1,31 @@
+info:
+  serviceName: @project.artifactId@
+  version: @project.version@
+  description: @project.description@
+  businessSide: 研发部
+  jdk-version: @java.version@
+  spring-boot.version: @spring-boot.version@
+  spring-cloud.version: @spring-cloud.version@
+  author: yangrd
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings,env,health,metrics,prometheus
+
+
+logging:
+  level:
+    org.springframework: DEBUG
+
+server:
+  port: 8060
+
+feign:
+  hystrix:
+    enabled: true
+spring:
+  profiles:
+    active: dev
