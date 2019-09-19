@@ -18,7 +18,12 @@ management:
 
 logging:
   level:
-    org.springframework: DEBUG
+    root: INFO
+    com.scg.service: TRACE
+    org.springframework.web: INFO
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
   file: /tmp/${spring.application.name}.log
 
 
@@ -31,14 +36,3 @@ feign:
 spring:
   profiles:
     active: dev
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://localhost:${server.port}/.well-known/jwks.json
-
-security:
-  oauth2:
-    client:
-      client-id: first-client
-      client-secret: noonewilleverguess

@@ -1,6 +1,8 @@
 package com.yangrd.springcloud.example;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,21 +11,27 @@ import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCusto
 import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.jwt.JwtHelper;
+import org.springframework.security.jwt.crypto.sign.RsaSigner;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.util.JsonParser;
+import org.springframework.security.oauth2.common.util.JsonParserFactory;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.*;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.endpoint.FrameworkEndpoint;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -36,7 +44,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.KeyPair;
 import java.security.Principal;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -44,8 +54,6 @@ import java.util.Map;
  * @author yangrd
  * @date 2019/09/05
  */
-@EnableAuthorizationServer
-@EnableResourceServer
 @SpringCloudApplication
 public class Oauth2Application {
 
@@ -60,6 +68,30 @@ public class Oauth2Application {
     }
 
     @Configuration
+    @EnableResourceServer
+    public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
+
+        @Override
+        public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+            super.configure(resources);
+        }
+
+        /**
+         * 用于配置对受保护的资源的访问规则
+         * 默认情况下所有不在/oauth/**下的资源都是受保护的资源
+         * {@link OAuth2WebSecurityExpressionHandler}
+         */
+        @Override
+        public void configure(HttpSecurity http) throws Exception {
+            http.requestMatchers().antMatchers("/userinfo")
+                    .and()
+                    .authorizeRequests()
+                    .anyRequest().authenticated();
+        }
+    }
+
+    @EnableAuthorizationServer
+    @Configuration
     public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
         @Autowired
@@ -69,10 +101,10 @@ public class Oauth2Application {
         public void configure(ClientDetailsServiceConfigurer clients) {
             try {
                 clients.inMemory()
-                        .withClient("client")
+                        .withClient("gateway")
                         .secret(passwordEncoder().encode("secret"))
                         .authorizedGrantTypes("authorization_code", "client_credentials", "password")
-                        .scopes("any").redirectUris("http://localhost:8080/");
+                        .scopes("any", "resource.read").resourceIds("oauth2-resource").redirectUris("http://127.0.0.1:8086/login/oauth2/code/gateway");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -95,16 +127,49 @@ public class Oauth2Application {
 
         @Bean
         public JwtAccessTokenConverter accessTokenConverter() {
-            // 配置jks文件
-            JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-            converter.setKeyPair(keyPair());
-            return converter;
+            return new JwtCustomHeadersAccessTokenConverter(keyPair());
         }
 
         @Bean
         public KeyPair keyPair() {
             KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("sample-jwt.jks"), "sample".toCharArray());
             return keyStoreKeyFactory.getKeyPair("sample-jwt");
+        }
+
+        @Bean
+        public JWKSet jwkSet() {
+            RSAKey.Builder builder = new RSAKey.Builder((RSAPublicKey) keyPair().getPublic())
+                    .keyUse(KeyUse.SIGNATURE)
+                    .algorithm(JWSAlgorithm.RS256)
+                    .keyID("sample");
+            return new JWKSet(builder.build());
+        }
+    }
+
+
+    public class JwtCustomHeadersAccessTokenConverter extends JwtAccessTokenConverter {
+
+        private JsonParser objectMapper = JsonParserFactory.create();
+        final RsaSigner signer;
+
+        public JwtCustomHeadersAccessTokenConverter(KeyPair keyPair) {
+            super();
+            super.setKeyPair(keyPair);
+            this.signer = new RsaSigner((RSAPrivateKey) keyPair.getPrivate());
+        }
+
+        @Override
+        protected String encode(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
+            String content;
+            try {
+                content = this.objectMapper.formatMap(getAccessTokenConverter().convertAccessToken(accessToken, authentication));
+            } catch (Exception ex) {
+                throw new IllegalStateException("Cannot convert access token to JSON", ex);
+            }
+            Map<String, String> customHeaders = Collections.singletonMap("kid", "sample");
+            String token = JwtHelper.encode(content, this.signer, customHeaders)
+                    .getEncoded();
+            return token;
         }
     }
 
@@ -114,7 +179,7 @@ public class Oauth2Application {
         @Override
         public UserDetailsService userDetailsService() {
             return new InMemoryUserDetailsManager(
-                    User.withUserDetails(new User("user", passwordEncoder().encode("password"), Collections.emptyList())).build());
+                    User.withUserDetails(new User("user", passwordEncoder().encode("password"), Arrays.asList(new SimpleGrantedAuthority("user")))).build());
         }
 
         @Bean
@@ -122,69 +187,47 @@ public class Oauth2Application {
         public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();
         }
+
+
     }
 
     @Order(-3)
     @Configuration
-    class JwkSetEndpointConfiguration extends AuthorizationServerSecurityConfiguration {
+    class OpenEndpointConfiguration extends AuthorizationServerSecurityConfiguration {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            super.configure(http);
             http
                     .requestMatchers()
-                    .mvcMatchers("/.well-known/jwks.json")
+                    .mvcMatchers("/.well-known/jwks.json", "/actuator/**")
                     .and()
                     .authorizeRequests()
-                    .mvcMatchers("/.well-known/jwks.json").permitAll();
+                    .mvcMatchers("/.well-known/jwks.json", "/actuator/**").permitAll();
         }
     }
 
     @FrameworkEndpoint
+    @Configuration
     class JwkSetEndpoint {
-        KeyPair keyPair;
+        JWKSet jwkSet;
 
-        public JwkSetEndpoint(KeyPair keyPair) {
-            this.keyPair = keyPair;
+        public JwkSetEndpoint(JWKSet jwkSet) {
+            this.jwkSet = jwkSet;
         }
 
         @GetMapping("/.well-known/jwks.json")
         @ResponseBody
         public Map<String, Object> getKey() {
-            RSAPublicKey publicKey = (RSAPublicKey) this.keyPair.getPublic();
-            RSAKey key = new RSAKey.Builder(publicKey).build();
-            return new JWKSet(key).toJSONObject();
+            return jwkSet.toJSONObject();
         }
     }
 
-    @Import(AuthorizationServerEndpointsConfiguration.class)
-    @Configuration
-    public class JwkSetConfiguration extends AuthorizationServerConfigurerAdapter {
-
-        // ... the rest of the configuration from the previous section
-    }
-
-    @Order(-2)
-    @Configuration
-    public class ActuatorConfig extends AuthorizationServerSecurityConfiguration {
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-            http.requestMatchers()
-                    .mvcMatchers("/actuator/**")
-                    .and().authorizeRequests().mvcMatchers("/actuator/**").permitAll();
-        }
-    }
 
     @RestController
     public class MeController {
 
-        @GetMapping("/me")
-        public Principal me(Principal principal) {
+        @GetMapping("/userinfo")
+        public Principal userInfo(Principal principal) {
             return principal;
-        }
-
-        @GetMapping("/whoami")
-        public Object whoami(@AuthenticationPrincipal Object name) {
-            return name;
         }
     }
 

@@ -18,7 +18,12 @@ management:
 
 logging:
   level:
-    org.springframework: DEBUG
+    root: INFO
+    com.scg.service: TRACE
+    org.springframework.web: INFO
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
   file: /tmp/${spring.application.name}.log
 
 
@@ -26,6 +31,26 @@ logging:
 spring:
   profiles:
     active: dev
+  autoconfigure:
+    # TODO: remove when fixed https://github.com/spring-projects/spring-security/issues/6314
+    exclude: org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration
+  security:
+    oauth2:
+      client:
+        registration:
+          gateway:
+            provider: uaa
+            client-id: gateway
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri-template: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: any,resource.read
+        provider:
+          uaa:
+            authorization-uri: http://localhost:8087/oauth/authorize
+            token-uri: http://localhost:8087/oauth/token
+            user-info-uri: http://localhost:8087/userinfo
+            user-name-attribute: name
   cloud:
     gateway:
       routes:
@@ -41,5 +66,12 @@ spring:
             - Path=/orders/**
           filters:
             - StripPrefix=1
+        - id: goods-service
+          uri: lb://goods-service
+          predicates:
+            - Path=/goods/**
+          filters:
+            - StripPrefix=1
+
 server:
   port: 8086
