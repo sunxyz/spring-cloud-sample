@@ -13,20 +13,36 @@ management:
   endpoints:
     web:
       exposure:
-        include: mappings,env,health,metrics,prometheus
-
+        include: "*"
 
 logging:
   level:
-    org.springframework: DEBUG
+    root: DEBUG
+    com.scg.service: TRACE
+    org.springframework.web: INFO
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
   file: /tmp/${spring.application.name}.log
 
 server:
   port: 9090
-
 feign:
   hystrix:
     enabled: true
 spring:
   profiles:
     active: dev
+security:
+  oauth2:
+    resource:
+      jwk:
+        key-set-uri: http://localhost:8087/.well-known/jwks.json
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE  #加上这个就可以获取到HttpServletRequest
+          thread:
+            timeoutInMilliseconds: 10000
