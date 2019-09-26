@@ -31,7 +31,7 @@
                                 <li class="list-group-item">${scope}</li>
                             </#list>
                             </ul>
-                            <p  class="text-muted">授权后表明你已同意 <a  href="#boot"  class="text-small">OAUTH-BOOT 服务协议</a></p>
+                            <p  class="text-muted">授权后表明你已同意 <a  href="#boot"  class="text-small">OAUTH2 服务协议</a></p>
                             <form method="POST" action="/oauth/authorize">
                                 <input type="hidden" name="user_oauth_approval" value="true">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>

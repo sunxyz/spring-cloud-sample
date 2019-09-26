@@ -106,7 +106,7 @@ public class Oauth2Application {
                         .withClient("gateway")
                         .secret(passwordEncoder().encode("secret"))
                         .authorizedGrantTypes("authorization_code", "client_credentials", "password")
-                        .scopes("any","userInfo","orderInfo").resourceIds("oauth2-resource").redirectUris("http://127.0.0.1:8086/login/oauth2/code/gateway");
+                        .scopes("any", "userInfo", "orderInfo").resourceIds("oauth2-resource").redirectUris("http://127.0.0.1:8086/login/oauth2/code/gateway");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -118,10 +118,10 @@ public class Oauth2Application {
             endpoints
                     .authenticationManager(this.authenticationManager)
                     .accessTokenConverter(accessTokenConverter())
-                    .tokenStore(tokenStore());
+                    .tokenStore(tokenStore())
+                    .pathMapping("/oauth/confirm_access", "/oauth/approval/confirm_access")
+                    .pathMapping("/oauth/error", "/oauth/approval/error");
             // @formatter:on
-            endpoints.pathMapping("/oauth/confirm_access","/oauth/approval/confirm_access");
-            endpoints.pathMapping("/oauth/error","/oauth/approval/error");
         }
 
         @Bean
@@ -196,7 +196,7 @@ public class Oauth2Application {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
 //            super.configure(http);
-            http.authorizeRequests().antMatchers("/login*","/assets/**").permitAll().anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll().and().logout().logoutUrl("/logout").deleteCookies("JSESSIONID").and().httpBasic();
+            http.authorizeRequests().antMatchers("/login*", "/assets/**").permitAll().anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll().and().logout().logoutUrl("/logout").deleteCookies("JSESSIONID").and().httpBasic();
         }
     }
 
@@ -215,7 +215,7 @@ public class Oauth2Application {
     }
 
     @Configuration
-    class FormPageMvcConfig implements WebMvcConfigurer{
+    class FormPageMvcConfig implements WebMvcConfigurer {
         @Override
         public void addViewControllers(ViewControllerRegistry registry) {
             registry.addViewController("/login").setViewName("login");
