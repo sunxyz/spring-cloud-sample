@@ -41,6 +41,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.security.KeyPair;
 import java.security.Principal;
@@ -104,7 +106,7 @@ public class Oauth2Application {
                         .withClient("gateway")
                         .secret(passwordEncoder().encode("secret"))
                         .authorizedGrantTypes("authorization_code", "client_credentials", "password")
-                        .scopes("any", "resource.read").resourceIds("oauth2-resource").redirectUris("http://127.0.0.1:8086/login/oauth2/code/gateway");
+                        .scopes("any","userInfo","orderInfo").resourceIds("oauth2-resource").redirectUris("http://127.0.0.1:8086/login/oauth2/code/gateway");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -118,6 +120,7 @@ public class Oauth2Application {
                     .accessTokenConverter(accessTokenConverter())
                     .tokenStore(tokenStore());
             // @formatter:on
+            endpoints.pathMapping("/oauth/confirm_access","/oauth/approvale/confirm_access");
         }
 
         @Bean
@@ -189,6 +192,11 @@ public class Oauth2Application {
         }
 
 
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+//            super.configure(http);
+            http.authorizeRequests().antMatchers("/login*","/assets/**").permitAll().anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll().and().logout().logoutUrl("/logout").deleteCookies("JSESSIONID").and().httpBasic();
+        }
     }
 
     @Order(-3)
@@ -202,6 +210,15 @@ public class Oauth2Application {
                     .and()
                     .authorizeRequests()
                     .mvcMatchers("/.well-known/jwks.json", "/actuator/**").permitAll();
+        }
+    }
+
+    @Configuration
+    class FormPageMvcConfig implements WebMvcConfigurer{
+        @Override
+        public void addViewControllers(ViewControllerRegistry registry) {
+            registry.addViewController("/login").setViewName("login");
+            registry.addViewController("/logout").setViewName("logout");
         }
     }
 
