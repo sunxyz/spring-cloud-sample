@@ -33,6 +33,8 @@ feign:
 spring:
   profiles:
     active: dev
+  zipkin:
+    base-url: http://192.168.2.54:9411
 security:
   oauth2:
     resource:

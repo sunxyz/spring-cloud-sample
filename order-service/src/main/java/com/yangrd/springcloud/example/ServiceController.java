@@ -1,5 +1,6 @@
 package com.yangrd.springcloud.example;
 
+import feign.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -71,6 +72,12 @@ public class ServiceController {
     public String call2() {
         return userClient.call();
     }
+
+    @GetMapping("/call3")
+    public String call3(UserClient.Params params) {
+        return userClient.demo(params);
+    }
+
 
 
     @Autowired

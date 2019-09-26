@@ -14,4 +14,9 @@ public class UserClientFallback implements UserClient {
     public String call() {
         return "fail feign !";
     }
+
+    @Override
+    public String demo(Params params) {
+        return null;
+    }
 }

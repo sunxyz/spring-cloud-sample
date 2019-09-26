@@ -31,6 +31,8 @@ logging:
 spring:
   profiles:
     active: dev
+  zipkin:
+    base-url: http://192.168.2.54:9411
   autoconfigure:
     # TODO: remove when fixed https://github.com/spring-projects/spring-security/issues/6314
     exclude: org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration
@@ -44,7 +46,7 @@ spring:
             client-secret: secret
             authorization-grant-type: authorization_code
             redirect-uri-template: "{baseUrl}/login/oauth2/code/{registrationId}"
-            scope: any,resource.read
+            scope: any
         provider:
           uaa:
             authorization-uri: http://localhost:8087/oauth/authorize

@@ -1,6 +1,8 @@
 package com.yangrd.springcloud.example;
 
+import lombok.Data;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
@@ -9,7 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
  * @author yangrd
  * @date 2019/09/05
  */
-@FeignClient(name = "user-service", fallback = UserClientFallback.class )
+//@FeignClient(name = "user-service", fallback = UserClientFallback.class )
+@FeignClient(name = "user-service", fallbackFactory = HystrixUserClientFallbackFactory.class)
 public interface UserClient {
 
     /**
@@ -18,4 +21,21 @@ public interface UserClient {
      */
     @GetMapping("/")
     String call();
+
+    /**
+     *测试
+     * @param params
+     * @return
+     */
+    @GetMapping("/")
+    String demo(@SpringQueryMap Params params);
+
+    @Data
+     class Params{
+
+         private String param1;
+
+         private String param2;
+
+    }
 }
