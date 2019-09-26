@@ -17,19 +17,18 @@ import java.util.Map;
  * @date 2019/09/26
  */
 @Controller
-// 必须配置
 @SessionAttributes("authorizationRequest")
 public class Oauth2Controller {
 
-    @RequestMapping("/oauth/approvale/confirm_access")
-    public String getAccessConfirmation(Map<String, Object> model, HttpServletRequest request) throws Exception {
+    @RequestMapping("/oauth/approval/confirm_access")
+    public String getAccessConfirmation(Map<String, Object> model) {
         AuthorizationRequest authorizationRequest = (AuthorizationRequest) model.get("authorizationRequest");
         model.put("scopes",authorizationRequest.getScope());
         model.put("clientId", authorizationRequest.getClientId());
         return "oauth_approval";
     }
 
-    @RequestMapping({ "/oauth/approvale/error" })
+    @RequestMapping({ "/oauth/approval/error" })
     public String handleError(Map<String, Object> model, HttpServletRequest request) {
         Object error = request.getAttribute("error");
         String errorSummary;

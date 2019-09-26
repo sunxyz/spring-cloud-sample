@@ -120,7 +120,8 @@ public class Oauth2Application {
                     .accessTokenConverter(accessTokenConverter())
                     .tokenStore(tokenStore());
             // @formatter:on
-            endpoints.pathMapping("/oauth/confirm_access","/oauth/approvale/confirm_access");
+            endpoints.pathMapping("/oauth/confirm_access","/oauth/approval/confirm_access");
+            endpoints.pathMapping("/oauth/error","/oauth/approval/error");
         }
 
         @Bean
