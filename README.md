@@ -22,7 +22,7 @@
 
     <springProperty scope="context" name="springAppName" source="spring.application.name"/>
     <!-- Example for logging into the build folder of your project -->
-    <property name="LOG_FILE" value="/data/elk/logs/${springAppName}"/>
+    <property name="LOG_FILE" value="/tmp/${springAppName}"/>
 
     <!-- You can override this to have a custom pattern -->
     <property name="CONSOLE_LOG_PATTERN"
@@ -52,15 +52,13 @@
             <charset>utf8</charset>
         </encoder>
     </appender>
-
     <!-- Appender to log to file in a JSON format -->
-    <appender name="logstash" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_FILE}.json</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_FILE}.json.%d{yyyy-MM-dd}.gz</fileNamePattern>
-            <maxHistory>7</maxHistory>
-        </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+    <appender name="logstash"
+              class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>192.168.2.54:5044</destination>
+        <!-- 日志输出编码 -->
+        <encoder
+                class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <timestamp>
                     <timeZone>UTC</timeZone>
@@ -72,7 +70,6 @@
                         "service": "${springAppName:-}",
                         "trace": "%X{X-B3-TraceId:-}",
                         "span": "%X{X-B3-SpanId:-}",
-                        "parent": "%X{X-B3-ParentSpanId:-}",
                         "exportable": "%X{X-Span-Export:-}",
                         "pid": "${PID:-}",
                         "thread": "%thread",
@@ -84,12 +81,11 @@
             </providers>
         </encoder>
     </appender>
-
     <root level="INFO">
         <appender-ref ref="console"/>
         <!-- uncomment this to have also JSON logs -->
         <appender-ref ref="logstash"/>
-        <!--<appender-ref ref="flatfile"/>-->
+        <appender-ref ref="flatfile"/>
     </root>
 </configuration>
 ```
@@ -128,9 +124,16 @@ services:
 
 ```
 input {
-  file {
-    codec => json
-    path => "/opt/build/*.json"  # 改成你项目打印的json日志文件。
+#  file {
+#    codec => json
+#    path => "/opt/build/*.json"  # 改成你项目打印的json日志文件。
+#  }
+#  beats {
+#    port => "5044"
+#  }
+  tcp {
+    port => 5044
+    codec => json_lines
   }
 }
 filter {
