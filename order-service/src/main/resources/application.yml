@@ -23,7 +23,7 @@ logging:
     org.springframework.web.HttpLogging: DEBUG
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
-  file: /tmp/${spring.application.name}.log
+#  file: /tmp/${spring.application.name}.log
 
 server:
   port: 9090

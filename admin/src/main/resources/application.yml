@@ -19,7 +19,7 @@ management:
 logging:
   level:
     org.springframework: DEBUG
-  file: /tmp/${spring.application.name}.log
+#  file: /tmp/${spring.application.name}.log
 
 
 server:

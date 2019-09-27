@@ -21,6 +21,7 @@
         <spring-cloud.version>Greenwich.SR3</spring-cloud.version>
 <!--        <spring-cloud.version>Greenwich.SR1</spring-cloud.version>-->
         <spring-security-oauth2-autoconfigure.version>2.1.8.RELEASE</spring-security-oauth2-autoconfigure.version>
+        <logstash-logback-encoder.version>6.1</logstash-logback-encoder.version>
     </properties>
 
     <modules>
@@ -83,6 +84,10 @@
             <artifactId>jolokia-core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -98,6 +103,13 @@
                 <groupId>org.springframework.security.oauth.boot</groupId>
                 <artifactId>spring-security-oauth2-autoconfigure</artifactId>
                 <version>${spring-security-oauth2-autoconfigure.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback-encoder.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
