@@ -25,6 +25,8 @@
     </properties>
 
     <modules>
+        <module>admin</module>
+        <module>breaker-dashboard</module>
         <module>gateway</module>
         <module>oauth2</module>
         <module>order-service</module>
@@ -104,8 +106,6 @@
                 <artifactId>spring-security-oauth2-autoconfigure</artifactId>
                 <version>${spring-security-oauth2-autoconfigure.version}</version>
             </dependency>
-
-
             <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>

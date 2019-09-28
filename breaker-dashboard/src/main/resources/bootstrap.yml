@@ -1,11 +1,11 @@
 spring:
   application:
-    name: admin
+    name: turbine
 
   cloud:
     consul:
       discovery:
-        tags: version=${info.version},author=${info.author},active=${spring.profiles.active} , user.name=user, user.password=passwor
+        tags: version=${info.version},author=${info.author},active=${spring.profiles.active}
         register: false
       host: 192.168.2.54
       port: 8500

@@ -18,18 +18,18 @@ management:
 
 logging:
   level:
-    root: WARN
-#    com.scg.service: TRACE
-#    org.springframework.web: INFO
-#    org.springframework.web.HttpLogging: DEBUG
-#    org.springframework.security: DEBUG
-#    org.springframework.security.oauth2: DEBUG
+    root: INFO
+    com.scg.service: TRACE
+    org.springframework.web: INFO
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
 #  file: /tmp/${spring.application.name}.log
 
 
 
 server:
-  port: 8060
+  port: 8061
 
 feign:
   hystrix:
@@ -37,11 +37,9 @@ feign:
 spring:
   profiles:
     active: dev
-  boot:
-    admin:
-      discovery:
-        ignored-services: consul
-  security:
-    user:
-      name: user
-      password: password
+applications: user-service,order-service
+turbine:
+  aggregator:
+    clusterConfig: default
+  appConfig: ${applications}
+  clusterNameExpression: new String("default")
