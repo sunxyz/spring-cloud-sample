@@ -23,6 +23,11 @@ public class HystrixUserClientFallbackFactory implements FallbackFactory<UserCli
             public String demo(Params params) {
                 return "user-service fail !! " +cause.getMessage();
             }
+
+            @Override
+            public String fail() {
+                return "fail";
+            }
         };
 
 

@@ -30,6 +30,9 @@ public interface UserClient {
     @GetMapping("/")
     String demo(@SpringQueryMap Params params);
 
+    @GetMapping("/fail")
+    String fail();
+
     @Data
      class Params{
 

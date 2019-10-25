@@ -5,6 +5,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -19,6 +20,11 @@ import javax.servlet.http.HttpServletResponse;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
+
+    @Override
+    public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+        resources.resourceId("order-resource");
+    }
 
     /**
      * 用于配置对受保护的资源的访问规则

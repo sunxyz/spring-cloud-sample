@@ -44,4 +44,4 @@ turbine:
   appConfig: ${applications}
   clusterNameExpression: new String("default")
 
-turbineUrl: /hystrix/monitor?stream=http%3A%2F%2Flocalhost%3A8061%2Fturbine.stream
+turbineUrl: /hystrix/monitor?stream=http://localhost:8061/turbine.stream

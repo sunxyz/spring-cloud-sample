@@ -46,7 +46,7 @@ spring:
             client-secret: secret
             authorization-grant-type: authorization_code
             redirect-uri-template: "{baseUrl}/login/oauth2/code/{registrationId}"
-            scope: any
+            scope: any, userInfo
         provider:
           uaa:
             authorization-uri: http://localhost:8087/oauth/authorize

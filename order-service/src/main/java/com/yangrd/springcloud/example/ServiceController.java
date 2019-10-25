@@ -78,6 +78,10 @@ public class ServiceController {
         return userClient.demo(params);
     }
 
+    @GetMapping("/call4")
+    public String call4() {
+        return userClient.fail();
+    }
 
 
     @Autowired

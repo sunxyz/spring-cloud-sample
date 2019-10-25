@@ -106,7 +106,7 @@ public class Oauth2Application {
                         .withClient("gateway")
                         .secret(passwordEncoder().encode("secret"))
                         .authorizedGrantTypes("authorization_code", "client_credentials", "password")
-                        .scopes("any", "userInfo", "orderInfo").resourceIds("oauth2-resource").redirectUris("http://127.0.0.1:8086/login/oauth2/code/gateway");
+                        .scopes("any", "userInfo", "orderInfo").resourceIds("oauth2-resource", "user-resource", "order-resource").redirectUris("http://127.0.0.1:8086/login/oauth2/code/gateway");
             } catch (Exception e) {
                 e.printStackTrace();
             }

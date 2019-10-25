@@ -31,6 +31,12 @@ public class UserServiceApplication {
         return "hi i am user service!!!";
     }
 
+    @GetMapping("/fail")
+    public String error() {
+        log.error("[{}]用户不存在", 11);
+        throw new RuntimeException();
+    }
+
     @RestController
     public class MeController {
 

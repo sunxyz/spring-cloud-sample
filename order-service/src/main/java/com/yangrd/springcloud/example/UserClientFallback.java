@@ -19,4 +19,9 @@ public class UserClientFallback implements UserClient {
     public String demo(Params params) {
         return null;
     }
+
+    @Override
+    public String fail() {
+        return "fail";
+    }
 }
