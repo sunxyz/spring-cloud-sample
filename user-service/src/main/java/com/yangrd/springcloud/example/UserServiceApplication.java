@@ -33,8 +33,8 @@ public class UserServiceApplication {
 
     @GetMapping("/fail")
     public String error() {
-        log.error("[{}]用户不存在", 11);
-        throw new RuntimeException();
+//        log.error("[{}]用户不存在", 11);
+        throw new RuntimeException("用户不存在");
     }
 
     @RestController

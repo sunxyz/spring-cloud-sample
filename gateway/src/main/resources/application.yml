@@ -76,4 +76,4 @@ spring:
             - StripPrefix=1
 
 server:
-  port: 8086
+  port: 8083

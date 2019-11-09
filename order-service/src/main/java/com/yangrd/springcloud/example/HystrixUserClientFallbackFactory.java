@@ -1,6 +1,8 @@
 package com.yangrd.springcloud.example;
 
+import feign.FeignException;
 import feign.hystrix.FallbackFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,10 +11,17 @@ import org.springframework.stereotype.Component;
  * @author yangrd
  * @date 2019/09/24
  */
+@Slf4j
 @Component
 public class HystrixUserClientFallbackFactory implements FallbackFactory<UserClient> {
     @Override
     public UserClient create(Throwable cause) {
+        if (cause instanceof FeignException){
+            log.error("[{} , {}]", cause.getMessage() ,((FeignException)cause).contentUTF8() );
+        }else {
+            log.error("[{}]", cause.getMessage() );
+        }
+
         return new UserClient() {
             @Override
             public String call() {
@@ -26,6 +35,7 @@ public class HystrixUserClientFallbackFactory implements FallbackFactory<UserCli
 
             @Override
             public String fail() {
+
                 return "fail";
             }
         };
