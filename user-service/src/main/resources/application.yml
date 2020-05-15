@@ -21,9 +21,9 @@ logging:
     com.scg.service: TRACE
     org.springframework.web: INFO
     org.springframework.web.HttpLogging: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
-#  file: /tmp/${spring.application.name}.log
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+  file: /tmp/${spring.application.name}.log
 
 server:
   port: 9080
@@ -35,6 +35,30 @@ spring:
     active: dev
   zipkin:
     base-url: http://192.168.2.54:9411
+  rabbitmq:
+    host: 192.168.2.54
+  datasource:
+    url: jdbc:mysql://192.168.2.41:3306/demo?characterEncoding=utf-8&useSSL=false&autoReconnect=false&rewriteBatchedStatements=true&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: test@123456.
+    hikari:
+      auto-commit: true
+      connection-test-query: SELECT 1
+      connection-timeout: 30000
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      maximum-pool-size: 30
+      minimum-idle: 5
+      pool-name: DatebookHikariCP
+    type: com.zaxxer.hikari.HikariDataSource
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+  main:
+    allow-bean-definition-overriding: true
 security:
   oauth2:
     resource:

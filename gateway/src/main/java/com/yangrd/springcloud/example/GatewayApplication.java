@@ -83,7 +83,9 @@ public class GatewayApplication {
                     .map(oAuth2Authentication -> oAuth2Authentication.getPrincipal())
                     .filter(oAuth2User -> Objects.nonNull(oAuth2User) && oAuth2User instanceof DefaultOAuth2User)
                     .map(o -> (DefaultOAuth2User) o)
-                    .map(jwtOAuth2User -> ((Map) jwtOAuth2User.getAttributes().get("details")).get("tokenValue"))
+                    .map(jwtOAuth2User -> {
+                        return ((Map) jwtOAuth2User.getAttributes().get("details")).get("tokenValue");
+                    })
                     .map(bearerToken -> {
                         ServerHttpRequest.Builder builder = exchange.getRequest().mutate();
                         builder.header(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken);

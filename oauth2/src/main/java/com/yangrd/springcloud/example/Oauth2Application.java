@@ -14,9 +14,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,6 +35,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.endpoint.FrameworkEndpoint;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
@@ -160,6 +163,7 @@ public class Oauth2Application {
             super();
             super.setKeyPair(keyPair);
             this.signer = new RsaSigner((RSAPrivateKey) keyPair.getPrivate());
+            setAccessTokenConverter(new CustomAccessTokenConverter());
         }
 
         @Override
@@ -177,13 +181,25 @@ public class Oauth2Application {
         }
     }
 
+    public class CustomAccessTokenConverter extends DefaultAccessTokenConverter{
+
+        @Override
+        public Map<String, ?> convertAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
+            Map<String, Object> stringMap = (Map<String, Object>)super.convertAccessToken(token, authentication);
+            // TODO userCode
+
+            stringMap.put("user_code", authentication.getName());
+            return stringMap;
+        }
+    }
+
     @EnableWebSecurity
     public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         @Bean
         @Override
         public UserDetailsService userDetailsService() {
             return new InMemoryUserDetailsManager(
-                    User.withUserDetails(new User("user", passwordEncoder().encode("password"), Arrays.asList(new SimpleGrantedAuthority("user")))).build());
+                    User.withUserDetails(new User("user", passwordEncoder().encode("password"), Arrays.asList(new SimpleGrantedAuthority("user"),new SimpleGrantedAuthority("account")))).build());
         }
 
         @Bean
@@ -245,6 +261,14 @@ public class Oauth2Application {
 
         @GetMapping("/userinfo")
         public Principal userInfo(Principal principal) {
+           /* if(principal instanceof OAuth2Authentication){
+                OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) principal;
+
+                UsernamePasswordAuthenticationToken userAuthentication = (UsernamePasswordAuthenticationToken) oAuth2Authentication.getUserAuthentication();
+
+                userAuthentication.setDetails("test");
+                principal = new OAuth2Authentication(oAuth2Authentication.getOAuth2Request(), userAuthentication);
+            }*/
             return principal;
         }
     }

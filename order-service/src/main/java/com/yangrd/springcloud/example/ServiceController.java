@@ -35,10 +35,10 @@ public class ServiceController {
     @Autowired
     private UserClient userClient;
 
-    @GetMapping("/me")
+    /*@GetMapping("/me")
     public ServiceInstance me() {
         return this.registration;
-    }
+    }*/
 
     @GetMapping("/env")
     public String env(@RequestParam("prop") String prop) {

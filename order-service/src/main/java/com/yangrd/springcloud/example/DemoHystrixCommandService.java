@@ -48,7 +48,7 @@ public class DemoHystrixCommandService {
             }
         };
         restTemplate.setInterceptors(Arrays.asList(clientHttpRequestInterceptor));
-        String callServiceResult = restTemplate.getForObject(serviceInstance.getUri().toString() + "/", String.class);
+        String callServiceResult = restTemplate.getForObject(serviceInstance.getUri().toString() + "/userinfo", String.class);
         System.out.println(callServiceResult);
         return callServiceResult;
     }
