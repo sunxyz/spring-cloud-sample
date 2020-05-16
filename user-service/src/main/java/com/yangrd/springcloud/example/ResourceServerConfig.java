@@ -55,8 +55,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .authorizeRequests().mvcMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .httpBasic();
-        (http.authorizeRequests().and()).addFilterAfter(new JwtTokenInfoExtractFilter(), AbstractPreAuthenticatedProcessingFilter.class);
+                .httpBasic()
+                .and().addFilterAfter(new JwtTokenInfoExtractFilter(), AbstractPreAuthenticatedProcessingFilter.class);
 
     }
 
