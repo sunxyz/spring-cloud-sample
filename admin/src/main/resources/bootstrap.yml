@@ -7,7 +7,7 @@ spring:
       discovery:
         tags: version=${info.version},author=${info.author},active=${spring.profiles.active} , user.name=user, user.password=passwor
         register: false
-      host: 192.168.2.54
+      host: 192.168.8.233
       port: 8500
       config:
         enabled: true

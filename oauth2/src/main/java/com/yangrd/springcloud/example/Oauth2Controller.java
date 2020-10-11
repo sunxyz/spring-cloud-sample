@@ -3,11 +3,13 @@ package com.yangrd.springcloud.example;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.Map;
 
 /**
@@ -40,5 +42,11 @@ public class Oauth2Controller {
         }
         model.put("errorSummary", errorSummary);
         return "oauth_error";
+    }
+
+    @GetMapping("/")
+    public String index(Principal principal, Map<String,Object> model){
+        model.put("username", principal.getName());
+        return "index";
     }
 }
